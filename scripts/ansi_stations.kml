@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>ANSI Stations</name>
+    <description>Garrotxa ANSI monitoring stations</description>
+    <Placemark>
+      <name>ST01</name>
+      <description>Elevation: 344.0 m</description>
+      <Point>
+        <coordinates>-6.616807,37.736816,344.0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST02</name>
+      <description>Elevation: 349.5 m</description>
+      <Point>
+        <coordinates>-6.619,37.736208,349.5</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST03</name>
+      <description>Elevation: 348.7 m</description>
+      <Point>
+        <coordinates>-6.6138,37.73758,348.7</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST04</name>
+      <description>Elevation: 347.7 m</description>
+      <Point>
+        <coordinates>-6.614511,37.736901,347.7</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST05</name>
+      <description>Elevation: 347.4 m</description>
+      <Point>
+        <coordinates>-6.615201,37.736503,347.4</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST06</name>
+      <description>Elevation: 350.1 m</description>
+      <Point>
+        <coordinates>-6.615728,37.736204,350.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST07</name>
+      <description>Elevation: 365.8 m</description>
+      <Point>
+        <coordinates>-6.616847,37.735683,365.8</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST08</name>
+      <description>Elevation: 363.2 m</description>
+      <Point>
+        <coordinates>-6.612969,37.737564,363.2</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST09</name>
+      <description>Elevation: 380.1 m</description>
+      <Point>
+        <coordinates>-6.611439,37.7378,380.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST10</name>
+      <description>Elevation: 379.2 m</description>
+      <Point>
+        <coordinates>-6.612601,37.7373,379.2</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST11</name>
+      <description>Elevation: 379.9 m</description>
+      <Point>
+        <coordinates>-6.6134,37.736801,379.9</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST12</name>
+      <description>Elevation: 378.6 m</description>
+      <Point>
+        <coordinates>-6.6141,37.736298,378.6</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST13</name>
+      <description>Elevation: 378.2 m</description>
+      <Point>
+        <coordinates>-6.615107,37.735743,378.2</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST14</name>
+      <description>Elevation: 377.2 m</description>
+      <Point>
+        <coordinates>-6.6167,37.735191,377.2</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST15</name>
+      <description>Elevation: 377.3 m</description>
+      <Point>
+        <coordinates>-6.610901,37.737625,377.3</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST16</name>
+      <description>Elevation: 387.5 m</description>
+      <Point>
+        <coordinates>-6.611702,37.737266,387.5</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST17</name>
+      <description>Elevation: 384.1 m</description>
+      <Point>
+        <coordinates>-6.612442,37.736902,384.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST18</name>
+      <description>Elevation: 385.8 m</description>
+      <Point>
+        <coordinates>-6.613,37.736537,385.8</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST19</name>
+      <description>Elevation: 386.0 m</description>
+      <Point>
+        <coordinates>-6.6136,37.736061,386.0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST20</name>
+      <description>Elevation: 385.7 m</description>
+      <Point>
+        <coordinates>-6.6141,37.735716,385.7</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST21</name>
+      <description>Elevation: 386.1 m</description>
+      <Point>
+        <coordinates>-6.614899,37.7354,386.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST22</name>
+      <description>Elevation: 385.5 m</description>
+      <Point>
+        <coordinates>-6.615601,37.7351,385.5</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST23</name>
+      <description>Elevation: 385.5 m</description>
+      <Point>
+        <coordinates>-6.6163,37.734934,385.5</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST24</name>
+      <description>Elevation: 386.7 m</description>
+      <Point>
+        <coordinates>-6.6174,37.7348,386.7</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST25</name>
+      <description>Elevation: 354.7 m</description>
+      <Point>
+        <coordinates>-6.618135,37.735763,354.7</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST26</name>
+      <description>Elevation: 355.1 m</description>
+      <Point>
+        <coordinates>-6.619483,37.73545,355.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST27</name>
+      <description>Elevation: 353.9 m</description>
+      <Point>
+        <coordinates>-6.620666,37.735152,353.9</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST28</name>
+      <description>Elevation: 386.4 m</description>
+      <Point>
+        <coordinates>-6.618437,37.734792,386.4</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST29</name>
+      <description>Elevation: 388.6 m</description>
+      <Point>
+        <coordinates>-6.619597,37.734526,388.6</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST30</name>
+      <description>Elevation: 384.1 m</description>
+      <Point>
+        <coordinates>-6.621247,37.734164,384.1</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST31</name>
+      <description>Elevation: 400.0 m</description>
+      <Point>
+        <coordinates>-6.615692,37.736646,400.0</coordinates>
+      </Point>
+    </Placemark>
+    <Placemark>
+      <name>ST32</name>
+      <description>Elevation: 400.0 m</description>
+      <Point>
+        <coordinates>-6.614778,37.737107,400.0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

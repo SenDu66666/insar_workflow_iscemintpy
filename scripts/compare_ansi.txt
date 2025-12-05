@@ -1,0 +1,67 @@
+时序下沉文件都在远程服务器上：
+升轨：
+/home/subsidence/procesados/sendu/riotinto/ascending/mintpy20240723/geo/geo_timeseries_ERA5_demErr.h5
+降轨：
+/home/subsidence/procesados/sendu/riotinto/descending/mintpy20240723/geo/geo_timeseries_ERA5_demErr.h5
+提取32个ANSI观测站的升降轨时序下沉值，输出csv文件，还有时序形变折线图，png格式，然后计算以ST01为参考点，剩余31个观测站的相对ST01的下沉值，输出csv文件，还有时序形变折线图，png格式，升降轨的输出文件分别放到
+/home/subsidence/procesados/sendu/riotinto/ascending/mintpy20240723/geo/ANSI32TS_ASC/
+/home/subsidence/procesados/sendu/riotinto/descending/mintpy20240723/geo/ANSI32TS_DSC/
+观测站名称以及坐标：
+Station Latitude Longitude Elevation
+ST01 37.736816 -6.616807 344.0
+ST02 37.736208 -6.619 349.5
+ST03 37.73758 -6.6138 348.7
+ST04 37.736901 -6.614511 347.7
+ST05 37.736503 -6.615201 347.4
+ST06 37.736204 -6.615728 350.1
+ST06 37.736204 -6.615728 350.1
+ST07 37.735683 -6.616847 365.8
+ST08 37.737564 -6.612969 363.2
+ST09 37.7378 -6.611439 380.1
+ST10 37.7373 -6.612601 379.2
+ST11 37.736801 -6.6134 379.9
+ST12 37.736298 -6.6141 378.6
+ST12 37.736298 -6.6141 378.6
+ST13 37.735743 -6.615107 378.2
+ST13 37.735743 -6.615107 378.2
+ST14 37.735191 -6.6167 377.2
+ST15 37.737625 -6.610901 377.3
+ST15 37.737625 -6.610901 377.3
+ST15 37.737625 -6.610901 377.3
+ST16 37.737266 -6.611702 387.5
+ST17 37.736902 -6.612442 384.1
+ST17 37.736902 -6.612442 384.1
+ST18 37.736537 -6.613 385.8
+ST19 37.736061 -6.6136 386.0
+ST19 37.736061 -6.6136 386.0
+ST20 37.735716 -6.6141 385.7
+ST21 37.7354 -6.614899 386.1
+ST21 37.7354 -6.614899 386.1
+ST21 37.7354 -6.614899 386.1
+ST22 37.7351 -6.615601 385.5
+ST23 37.734934 -6.6163 385.5
+ST23 37.734934 -6.6163 385.5
+ST23 37.734934 -6.6163 385.5
+ST24 37.7348 -6.6174 386.7
+ST25 37.735763 -6.618135 354.7
+ST26 37.73545 -6.619483 355.1
+ST27 37.735152 -6.620666 353.9
+ST28 37.734792 -6.618437 386.4
+ST29 37.734526 -6.619597 388.6
+ST29 37.734526 -6.619597 388.6
+ST30 37.734164 -6.621247 384.1
+ST31 37.736646 -6.615692 400.0
+ST32 37.737107 -6.614778 400.0
+还是riotinto，我需要3个东西，
+平均速率图，升降轨LOS视线方向分解到垂直方向（vertical）和东西方向(east west)，ANSI观测点时序形变也要从升降轨分解到垂直方向和东西方向,你看看你能不能找到相关参数，比如卫星入射角（incidence angle）和卫星前进方向（heading direction, or azimuth direction），需要什么跟我说。
+/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723
+/mnt/beegfs/procesados/sendu/riotinto/descending/mintpy20240723
+
+生成局部平均速率图：
+帮我生成一个平均形变速率图，用/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723/geo里面的geo_velocity.h5文件就可以，但是我不需要整个区域，只想要/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723/geo里面的dam_con_dam.kml文件里的多边形包含的那一点点。可以不？平均形变速率图最好包括colorbar和经纬度信息。
+
+3维分解
+现在我有了升轨和降轨的平均形变速率，分别在/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723/geo和/mnt/beegfs/procesados/sendu/riotinto/descending/mintpy20240723/geo里面的geo_velocity.h5文件，帮我利用升降轨的平均形变速率进行一个形变分解，生成两个平均形变速率图，一个是垂直方向一个是东西方向。你看看你能不能找到相关参数，比如卫星入射角（incidence angle）和卫星前进方向（heading direction, or azimuth direction），需要什么跟我说。还有就是我不需要整个区域，只想要/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723/geo里面的dam_con_dam.kml文件里的多边形包含的那一点点。可以不？
+
+
+现在我有一些观测点的时序升降轨数据,csv格式，在/mnt/beegfs/procesados/sendu/riotinto/ascending/mintpy20240723/geo/ANSI32TS_ASC和/mnt/beegfs/procesados/sendu/riotinto/descending/mintpy20240723/geo/ANSI32TS_DSC中，包括绝对形变和相对形变，请同样的把这些点的时序形变分解到垂直向和东西向，时间上，以降轨为主，升轨的数据按照降轨的时间采样差值。输出也按照升降轨同样的形式，每个点输出一个绝对值的垂直向形变，一个相对值的垂直向形变，一个绝对值的东西向形变，一个相对值的东西向形变。每个点的垂直向的相对值和绝对值的形变再生成一个png图，东西向的相对值和绝对值的形变再生成一个png图。谢谢

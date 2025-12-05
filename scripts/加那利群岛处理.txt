@@ -1,0 +1,65 @@
+下载数据：
+查一下哨兵1号卫星升轨覆盖加那利群岛中的 El Hierro 岛的轨道号，对比 `/mnt/SLC_synology/canaris.s1` 中的数据，下载 2018 年以后缺失的，下载到 `/mnt/beegfs/procesados/sendu` 文件夹下，根据轨道号命名文件夹，比如 ASCENDING_99。
+
+处理加那利群岛：
+使用 ISCE2 + MintPy 处理哨兵1，目标是 2022 年至今 El Hierro、Lanzarote、Fuerteventura 的形变。SLC 放在 `/mnt/SLC_synology/canaris.s1`，按轨道号存放（如 ASCENDING_99）。缺失影像下载到 `/mnt/beegfs/procesados/sendu`，按轨道号命名，再拷贝回 `/mnt/SLC_synology/canaris.s1/` 对应文件夹（权限原因不能直接下载到 Synology）。升降轨都要，下载完整性可用 `comprobar_orbita_v2.bash` 或自定义脚本检查。ISCE2 处理时 multilook 方位 3、距离 15（`-z 3 -r 15`），干涉连接 `-c 4`，辅助与精轨路径分别 `-a /home/subsidence/sar-db2/sentinel_aux_cal`，`-o /home/subsidence/sar-db2/sentinel_precise_orbits`。MintPy 处理时使用水体掩膜，DEM 可用 `dem.py` 获取（推荐 mintpy25 环境以支持 S1C），并做大气校正（ERA5）和 DEM 误差校正。
+
+当前状态（Lanzarote）：
+- 升轨 ASC：ISCE 已完成 run_09–run_13，当前 run_14_merge_burst_igram 正在运行（见 `/mnt/beegfs/procesados/sendu/Lanzarote/ASC/run_all_continue.log`，最新启动时间 2025-12-04 06:52；SentinelWrapper 正在处理 config_merge_igram_*）。run_15/16 未跑，MintPy 未开始，计划阈值同 Garrotxa：0.3。
+- 降轨 DSC：ISCE run_01–run_16 全部完成无报错，最后一步 run_16_unwrap 于 2025-11-06 05:00:59 结束，产物在 `/mnt/beegfs/procesados/sendu/Lanzarote/DSC/isce/merged`；MintPy 尚未开始。
+
+================ Lanzarote 升轨处理记录（2022-至今） ================
+1. 目录结构：
+   - `/mnt/beegfs/procesados/sendu/Lanzarote/ASC`
+   - `/mnt/beegfs/procesados/sendu/Lanzarote/DSC`
+   - `/mnt/beegfs/procesados/sendu/Lanzarote/DEM`
+   升轨目录有命令模板：`/mnt/beegfs/procesados/sendu/Lanzarote/ASC/step1.txt`
+
+2. DEM（mintpy25 推荐）：
+   ```bash
+   conda run -n mintpy25 dem.py -a stitch -b 28 30 -14 -13 -r -s 1 -c \
+     -d /mnt/beegfs/procesados/sendu/Lanzarote/DEM \
+     -o demLat_N28_N30_Lon_W014_W013.dem.wgs84
+   ```
+
+3. SLC：先用 `/mnt/SLC_synology/canarias.s1/ASCENDING_89`（如轨道调整则改 `-s`），确认 2022-01-01 以后齐全，可用 `comprobar_orbita_v2.bash` 检查缺失。
+
+4. stackSentinel（ISCE2 环境）示例（存为 step1.txt 并执行）：
+   ```bash
+   stackSentinel.py \
+       -s /mnt/SLC_synology/canarias.s1/ASCENDING_89 \
+       -d /mnt/beegfs/procesados/sendu/Lanzarote/DEM/demLat_N28_N30_Lon_W014_W013.dem.wgs84 \
+       -w /mnt/beegfs/procesados/sendu/Lanzarote/ASC \
+       -a /home/subsidence/sar-db2/sentinel_aux_cal \
+       -o /home/subsidence/sar-db2/sentinel_precise_orbits \
+       --start_date 2022-01-01 \
+       -b '28.8 29.4 -13.95 -13.3' \
+       -z 3 -r 15 -c 4 \
+       -W interferogram
+   ```
+   依次运行 `run_01`–`run_16` 并监控日志。
+
+5. 水体掩膜：
+   ```bash
+   conda run -n mintpy25 wbd.py 28 30 -14 -13 1
+   geocode.py swbdLat_N28_N30_Lon_W014_W013.wbd \
+     -l /mnt/beegfs/procesados/sendu/Lanzarote/ASC/merged/geom_reference/geometryRadar.h5 \
+     -o waterBody.h5 --geo2radar --fill 255
+   generate_mask.py waterBody.h5 --max 0.5 -o waterMask.h5
+   ```
+
+6. MintPy（mintpy25）关键配置：
+   - `mintpy.networkInversion.maskDataset = coherence`
+   - `mintpy.networkInversion.maskThreshold = 0.7`（可根据点数调整）
+   - `mintpy.networkInversion.waterMaskFile = ../inputs/waterMask.h5`
+   - `mintpy.troposphericDelay.method = pyaps`，`mintpy.troposphericDelay.weatherModel = ERA5`
+   - `mintpy.topographicResidual = yes`，`mintpy.topographicResidual.pixelwiseGeometry = yes`
+   - 参考点自动或手动指定；建议设置 `WEATHER_DIR` 缓存 ERA5。
+   运行：`conda run -n mintpy25 smallbaselineApp.py -g` 然后 `conda run -n mintpy25 smallbaselineApp.py smallbaselineApp.cfg > mintpy.log 2>&1`
+
+7. 精确轨道下载（可选 eof）：
+   ```bash
+   eof -p /mnt/SLC_synology/canarias.s1/ASCENDING_89 \
+       --save-dir /home/subsidence/sar-db2/sentinel_precise_orbits \
+       --asf-user SenDu --asf-password Dusen130730199206031838
+   ```

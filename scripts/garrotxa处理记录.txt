@@ -1,0 +1,29 @@
+Garrotxa 处理记录（ISCE2 + MintPy，升轨 ASC 132 / 降轨 DSC 37）
+
+数据与目录
+- SLC：升轨 `/mnt/SLC_synology/Iberia.S1/ASCENDING_132`（补充了 path132 frame129 S1C），降轨 `/mnt/SLC_synology/Iberia.S1/DESCENDING_37`。下载缓存与新增影像在 `/mnt/beegfs/procesados/sendu/garrox/ASC/ASCENDING_132` 和 `/mnt/beegfs/procesados/sendu/garrox/DSC`。
+- 处理目录：`/mnt/beegfs/procesados/sendu/garrox/ASC` 与 `/mnt/beegfs/procesados/sendu/garrox/DSC`。
+- DEM：`/mnt/beegfs/procesados/sendu/garrox/DEM/demLat_N41_N43_Lon_E001_E004.dem.wgs84`。
+
+ISCE2（升轨 ASC 132）
+- 环境：mintpy2025（含 ISCE2 2.6.3，支持 S1C）。
+- stackSentinel 重新生成（ROI 扩大）：`-b "41.35 42.87 2.30 3.75"`，输出 run_01–run_16。
+- 运行顺序：`run_files/run_all` 内含 `conda run -n mintpy2025 bash run_0X_*.sh > run_0X.log 2>&1`；run_01–run_16 均完成，无致命错误（snaphu 解缠全部结束）。
+- 合并产物：`/mnt/beegfs/procesados/sendu/garrox/ASC/isce/merged` 下有 SLC / interferograms / geom_reference，包含新增 S1C 影像（例如 2025-04/05/06/24）。
+
+ISCE2（降轨 DSC 37）
+- 早期处理已完成，目录 `/mnt/beegfs/procesados/sendu/garrox/DSC/isce`；用于后续 MintPy。
+
+MintPy（升轨 ASC）
+- 目录：`/mnt/beegfs/procesados/sendu/garrox/ASC/mintpy`。
+- 关键参数：`mintpy.subset.lalo = 41.40:42.50,1.90:3.40`；`maskThreshold = 0.3`，`minTempCoh = 0.3`；`troposphericDelay.method = pyaps`，`ERA5`；启用 DEM 误差校正。
+- 结果：流程正常结束，输出 `geo/geo_velocity.h5`、`geo/geo_timeseries_ERA5_demErr.h5` 等；ERA5 缓存路径 `/home/subsidence/procesados/sendu/WEATHER_DIR/ERA5` 已使用。
+
+MintPy（降轨 DSC）
+- 目录：`/mnt/beegfs/procesados/sendu/garrox/DSC/mintpy`。
+- 同步调低阈值：`maskThreshold = 0.3`，`minTempCoh = 0.3`；ROI `41.40:42.50,1.90:3.40`；pyaps ERA5 开启。
+- 重新全流程运行，删除旧 geometry/ifgramStack/waterMask 后重建；流程已完成，输出与升轨一致的文件结构（`geo/`, `velocityERA5.h5`, `timeseries_ERA5_demErr.h5` 等）。
+
+检查与后续
+- 可使用 `view.py geo/geo_velocity.h5 velocity` 或 `tsview.py geo/geo_timeseries_ERA5_demErr.h5` 选点查看。
+- 若需时序分解或升降轨联合反演，可在此基础上进行（阈值已对齐为 0.3，方便点数匹配）。*** End Patch

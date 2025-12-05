@@ -1,0 +1,179 @@
+
+
+1. Turkey test
+cd /DEM/
+dem.py -a stitch -b 18 20 -100 -97-r -s 1 -c ;18 20 is latitude, -100 -97 is lontitude,need to be integer
+rm demLat*.dem demLat*.dem.xml demLat*.dem.vrt ;remove the rest, only keep WGS84
+cd ..
+
+;add path to the environment variable
+
+
+;path of original sentinel data /home/subsidence/SLC/Turkey/
+cd /home/subsidence/procesados/sendu/turkey_earthquake/
+
+
+
+
+2. Rio tinto isce
+cd /DEM/
+dem.py -a stitch -b 36 39 -8 -4 -r -s 1 -c
+
+stackSentinel.py -h
+cd .. 
+stackSentinel.py -s /mnt/SLC_synology/Riotinto.S1/ASCENDING_147/ -d /home/subsidence/procesados/sendu/riotinto_dem/demLat_N36_N39_Lon_W008_W004.dem.wgs84 -w /home/subsidence/procesados/sendu//riotinto_asending -a /home/subsidence/sar-db2/sentinel_aux_cal -o /home/subsidence/sar-db2/sentinel_precise_orbits -b '37.6 37.8 -6.6 -6.4' --start_date 2021-07-05 --stop_date 2022-11-27  -z 3 -r 15 -c 3 # -W interferogram --exclude_dates '20211114,20211126,20211208,20211220'  -m 20211224
+
+
+cd run_files/
+chmod +x *
+./run_01_unpack_topo_reference &> run01.log
+./run_02_unpack_secondary_slc &> run02.log
+./run_03_average_baseline &> run03.log  #fast
+./run_04_extract_burst_overlaps &> run04.log  #fast
+./run_05_overlap_geo2rdr &> run05.log
+./run_06_overlap_resample &> run06.log
+./run_07_pairs_misreg &> run07.log # bad match at level 1 is this normal, No range offsets provided
+./run_08_timeseries_misreg &> run08.log
+./run_09_fullBurst_geo2rdr &> run09.log
+./run_10_fullBurst_resample &> run10.log
+./run_11_extract_stack_valid_region &> run11.log
+./run_12_merge_reference_secondary_slc &> run12.log  # skip multi looking, is it normal
+./run_13_generate_burst_igram &> run13.log
+./run_14_merge_burst_igram &> run14.log
+./run_15_filter_coherence &> run15.log
+./run_16_unwrap &> run16.log
+
+3.about the environment
+
+check the versions of all package 
+conda list
+for docker
+export PATH=/home/sendu/isce2_docker/isce2/isce2/contrib/stack/topsStack/:$PATH
+for iscemintPY
+export PATH=/home/sendu/isce2_docker/isce2/isce2/contrib/stack/topsStack/:$PATH
+chmod +x *
+for i in $(ls run_*); do echo wait >> $i; done #add 'wait' to the end of every run_* file
+tail -f run01.log
+ls -llh  # show file details 
+grep -iF error run08.log # check if there is 'error' in the file, it is commen that 07_pairs_misreg.log has many error.
+nano runo9.log #open log with nano
+
+4.choose roi
+
+cd /home/subsidence/procesados/sendu/riotinto/descending/merged/interferograms/20150321_20150402/
+view.py filt_fine.int 'magnitude' -c gray -v 0 10000
+
+
+5.mintpy
+cd mintpy
+smallbaselineApp.py -g
+
+Line30
+mintpy.load.autoPath        = yes 
+Line 34
+mintpy.load.metaFile        = ../reference/IW*.xml 
+Line 63
+mintpy.subset.yx            = 850:1000,1830:2000     
+mintpy.subset.lalo          = auto 
+Line 80
+mintpy.network.tempBaseMax     = 60  #[1-inf, no], 
+mintpy.network.perpBaseMax     = 180  #[1-inf, no], 
+line82
+startdate=
+enddate=20180608
+Line287
+mintpy.timeFunc.startDate   = auto   #[20070101 / no], auto for no
+mintpy.timeFunc.endDate     = 20180608   #[20101230 / no], auto for no
+Line 215
+mintpy.troposphericDelay.method = height_correlation  ###try pyaps with a short time line 82 startDate
+Line 182
+mintpy.networkInversion.maskDataset   = coherence 
+mintpy.networkInversion.maskThreshold = 0.7
+Line 188
+mintpy.networkInversion.minTempCoh  = 0.4 #[0.0-1.0]
+
+Line 249 DEM error, better to set off, no need for sentinel-1
+
+view.py --nodisplay ./inputs/ifgramStack.h5 connectComponent
+
+smallbaselineApp.py smallbaselineApp.cfg >& mintpy.log
+
+5.1 watermask:
+5.1.1 make from DEM
+python
+from mintpy.objects.stackDict import (geometryDict,ifgramStackDict,ifgramDict)
+datasetDict={'height' :'/home/subsidence/procesados/sendu/doñana/ascending/merged/geom_reference/hgt.rdr'}
+geomObj = geometryDict(processor='isce', datasetDict=datasetDict)
+geomObj.write2hdf5(outputFile='/home/subsidence/procesados/sendu/doñana/ascending/mintpy20180608/geometryRadar2.h5', access_mode='w', box=(200,500,300,600))#box=(x0,y0,x1,y1) of smallbaselineApp.cfg line 63
+
+view.py geometryRadar2.h5 height --noverbose
+generate_mask.py ./inputs/geometryRadar2.h5 height -m 300 --vx 233 270 --vy 143 180 -o waterMask.h5
+view.py waterMask.h5 -c gray --noverbose
+geocode.py waterMask.h5 
+5.1.2 download waterbody from USGS
+wbd.py 36 38 -7 -5
+smallbaselineApp.py smallbaselineApp.cfg --dostep load_data # to generate geometryRadar.h5
+geocode.py swbdLat_N36_N38_Lon_W007_W005.wbd -l ../inputs/geometryRadar.h5  -o waterBody.h5 --geo2radar --fill 255
+generate_mask.py waterBody.h5 --max 0.5 -o waterMask.h5
+
+6.check
+
+check azimuth angle,height, incidence angle, latitude, longitude, shadow mask, slant range distance,
+cd /home/subsidence/procesados/sendu/riotinto/descending/mintpy1/inputs/
+view.py geometryRadar.h5 
+
+info.py geo_velocity.h5
+
+7.view
+
+
+cd pic/
+save_kmz.py ../geo/geo_velocity.h5 -v -5 5 -c jet_r
+save_kmz.py ../geo/geo_avgSpatialCoh.h5 --cbar-label avg_Spatial_Coh
+save_kmz.py ../geo/geo_temporalCoherence.h5 --cbar-label temporal_Coherence
+
+
+save_kmz_timeseries.py geo_timeseries_tropHgt_demErr.h5 --vel geo_velocity.h5 --tcoh geo_temporalCoherence.h5 --mask geo_maskTempCoh.h5 -v -8 8 --steps 20 5 1 --colormap jet_r # 
+
+
+save picture
+view.py --wrap --nodisplay filt_fine.unw            one picture
+view.py ifgramStack.h5 coherence --nodisplay        thousands pictures
+
+8.one point show
+
+tsview.py geo_timeseries_tropHgt_demErr.h5 --ms 3 --yx 220 300 --figsize 9 3 --ref-date 20170108 --ref-lalo 37.6982918 -6.5936751 --nofit  #interactivate, VERY powerful, ref lalo for riotinto  
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 36.81638 -6.34217 #plot a point
+interest point in doñana
+37.13644 -6.31538 -o p1
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 37.24892 -6.91263 -o p2
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 37.03768 -6.37987 -o p3
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 36.96315 -6.29901 -o p4
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 36.81638 -6.34217 -o p5
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 36.80906 -6.26280 -o p6
+tsview.py geo_timeseries_ERA5_demErr.h5 --ylim -13 5  --nodisplay --lalo 37.00567 -6.54902 -o p7
+37.29281 -7.49153 -o p8
+
+9.cut a subset area****doesnot work on geo timeseries file, better process again
+subset.py geo_timeseries_ERA5_demErr.kmz -l 37.707488  37.735269 -L -6.619469 -6.584072 -o dam_geo_timeseries.kmz
+subset.py geo_velocity.h5 -l 37.707488  37.735269 -L -6.619469 -6.584072 -o dam_geo_velocity.h5
+subset.py geo_temporalCoherence.h5 -l 37.707488  37.735269 -L -6.619469 -6.584072 -o dam_geo_temporalCoherence.h5
+subset.py geo_maskTempCoh.h5 -l 37.707488  37.735269 -L -6.619469 -6.584072 -o dam_geo_maskTempCoh.h5
+
+subset.py geo_timeseries_ERA5_demErr.h5 -x 100 200 -y 100 200 -o dam_geo_timeseries.h5
+subset.py geo_velocity.h5 -x 100 200 -y 100 200 -o dam_geo_velocity.h5
+subset.py geo_temporalCoherence.h5 -x 100 200 -y 100 200 -o dam_geo_temporalCoherence.h5
+subset.py geo_maskTempCoh.h5 -x 100 200 -y 100 200 -o dam_geo_maskTempCoh.h5
+save_kmz_timeseries.py dam_geo_timeseries.h5 --vel dam_geo_velocity.h5 --tcoh dam_geo_temporalCoherence.h5 --mask dam_geo_maskTempCoh.h5 -v -15 5 --steps 20 5 1 --colormap jet_r
+
+**************
+
+linux oprations
+add path to environment path so the applications can be called.
+export PATH=/home/sendu/anaconda3/envs/iscemintpy/lib/python3.8/site-packages/mintpy/objects:$PATH
+
+check if the downloaded sentinel images are good, then move them to the default folder.
+comprobar_orbita_v2.bash
+tar -zxvf *.tar.gz
+
+
